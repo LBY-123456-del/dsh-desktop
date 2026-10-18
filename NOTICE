@@ -1,0 +1,33 @@
+dsh-desktop 图标素材来源
+=========================
+
+本目录下的 `build/icon.ico` 与 `src/assets/icon.png` 由 `tools/make-icon.js`
+从下列第三方素材生成，不是原创绘制。署名与许可如下。
+
+1. 萌宠立绘（图标主体）
+   -------------------
+   文件：`DSniang1.png`
+   来源：npm 包 `dsh-whale-widget`（DSH 小鲸鱼余额挂件）v0.2.10 的 `assets/`
+         https://github.com/MeteorNOX/DeepSeek-Balance-Whale-Widget
+   作者：MeteorNOX
+   许可：MIT License, Copyright (c) 2026 MeteorNOX
+   说明：即 DSH Web 界面右下角那只可点击萌宠的本体（抠图透明底，气泡由插件代码绘制）。
+         按 MIT 条款使用，须保留上述版权与许可声明。
+
+2. 角色形象的上游创作链（该 npm 包未声明，此处如实记录）
+   --------------------------------------------------
+   该立绘的角色形象可追溯到鲸鱼娘系列二创：
+     - 一创：上善 —— 鲸鱼娘角色形象原作者  https://www.pixiv.net/users/62155430
+     - 二创：zipzip —— 加入 DeepSeek 元素的女仆鲸鱼娘再设计
+              https://www.pixiv.net/users/18604994
+     - 三创：Small-tailqwq/dsh-deep-whale —— 皮肤工程侧的同源素材
+              （该仓库素材以 CC BY-NC-SA 4.0 发布，署名链见其 `maid-atelier/NOTICE`）
+
+   注意：`dsh-whale-widget` 包整体声明 MIT，但未对其美术素材单独声明来源与许可。
+   本桌面端因此把它当作 MIT 素材使用；**如果要把本应用对外分发**，请先向该包作者
+   确认素材授权，并在分发物中保留本节完整署名链。
+
+3. 兜底图标
+   ---------
+   找不到上述素材或找不到图像处理库时，`tools/make-icon.js` 会退回程序化绘制
+   （深蓝圆角方块 + 白色波浪），那部分为本项目原创，无第三方权利。

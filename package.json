@@ -1,0 +1,47 @@
+{
+  "name": "dsh-desktop",
+  "version": "0.1.2",
+  "private": true,
+  "description": "DeepSeek Harness 桌面端：Electron 外壳，自动拉起本机 dsh web 服务",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "smoke": "electron . --smoke",
+    "test": "node .smoke/port-retry-test.js",
+    "dist": "electron-builder --win",
+    "dist:dir": "electron-builder --win --dir"
+  },
+  "build": {
+    "appId": "dev.deepseekharness.dsh.desktop",
+    "productName": "DeepSeek Harness",
+    "asar": true,
+    "files": [
+      "src/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "icon": "build/icon.ico",
+      "target": [
+        "nsis",
+        "portable"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "artifactName": "${productName}-${version}-setup.${ext}"
+    },
+    "portable": {
+      "artifactName": "${productName}-${version}-portable.${ext}"
+    }
+  },
+  "devDependencies": {
+    "electron": "^44.4.1",
+    "electron-builder": "^26.15.3"
+  }
+}

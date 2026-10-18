@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src 'self' data: file:;" />
+    <title>DeepSeek Harness</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #f5f6fa;
+        --panel: #ffffff;
+        --panel-border: #e3e6ef;
+        --text: #1b1f2a;
+        --muted: #6b7280;
+        --accent: #4d6bfe;
+        --accent-soft: #e6ebff;
+        --danger: #d93a45;
+        --danger-soft: #fdecec;
+        --code-bg: #f1f3f9;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #10131c;
+          --panel: #171b26;
+          --panel-border: #262c3b;
+          --text: #e7eaf3;
+          --muted: #98a0b3;
+          --accent: #7d92ff;
+          --accent-soft: #1e2540;
+          --danger: #ff7a7a;
+          --danger-soft: #2c1b1f;
+          --code-bg: #0d1017;
+        }
+      }
+      * { box-sizing: border-box; }
+      html, body { height: 100%; margin: 0; }
+      body {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 32px;
+        background: radial-gradient(1200px 600px at 50% -10%, var(--accent-soft), transparent 70%), var(--bg);
+        color: var(--text);
+        font: 14px/1.6 "Segoe UI", "Microsoft YaHei UI", system-ui, sans-serif;
+        -webkit-user-select: none;
+        user-select: none;
+      }
+      main {
+        width: min(680px, 100%);
+        background: var(--panel);
+        border: 1px solid var(--panel-border);
+        border-radius: 16px;
+        box-shadow: 0 18px 60px rgba(16, 19, 28, 0.16);
+        padding: 32px 32px 26px;
+      }
+      header { display: flex; align-items: center; gap: 14px; margin-bottom: 22px; }
+      .mark {
+        width: 44px; height: 44px; flex: none;
+        display: grid; place-items: center;
+      }
+      .mark img { width: 44px; height: 44px; display: block; }
+      h1 { font-size: 16px; margin: 0; letter-spacing: 0.2px; }
+      .sub { color: var(--muted); font-size: 12px; margin-top: 2px; }
+      .row { display: flex; align-items: center; gap: 12px; }
+      .spinner {
+        width: 18px; height: 18px; flex: none;
+        border: 2px solid var(--accent-soft);
+        border-top-color: var(--accent);
+        border-radius: 50%;
+        animation: spin 0.9s linear infinite;
+      }
+      @keyframes spin { to { transform: rotate(360deg); } }
+      .status { font-size: 15px; font-weight: 600; }
+      .detail {
+        margin-top: 8px;
+        color: var(--muted);
+        font-size: 12px;
+        font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+        word-break: break-all;
+        white-space: pre-wrap;
+      }
+      .panel {
+        margin-top: 20px;
+        padding: 16px 18px;
+        border-radius: 12px;
+        border: 1px solid var(--panel-border);
+        background: var(--code-bg);
+      }
+      .error-panel { border-color: var(--danger); background: var(--danger-soft); }
+      .error-title { color: var(--danger); font-weight: 700; margin-bottom: 6px; }
+      pre {
+        margin: 10px 0 0;
+        max-height: 200px;
+        overflow: auto;
+        font-size: 12px;
+        font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+        white-space: pre-wrap;
+        word-break: break-all;
+        color: var(--muted);
+        -webkit-user-select: text;
+        user-select: text;
+      }
+      .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+      button {
+        font: inherit;
+        padding: 9px 16px;
+        border-radius: 9px;
+        border: 1px solid var(--panel-border);
+        background: var(--panel);
+        color: var(--text);
+        cursor: pointer;
+      }
+      button:hover { border-color: var(--accent); color: var(--accent); }
+      button.primary {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: #fff;
+      }
+      button.primary:hover { filter: brightness(1.08); color: #fff; }
+      footer { margin-top: 22px; color: var(--muted); font-size: 11px; }
+      [hidden] { display: none !important; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <div class="mark" aria-hidden="true">
+          <img src="assets/icon.png" alt="" width="44" height="44" />
+        </div>
+        <div>
+          <h1>DeepSeek Harness</h1>
+          <div class="sub">桌面端 · 正在准备本机 dsh 服务</div>
+        </div>
+      </header>
+
+      <section id="progress">
+        <div class="row">
+          <div class="spinner"></div>
+          <div class="status" id="status-text">准备启动…</div>
+        </div>
+        <div class="detail" id="status-detail" hidden></div>
+      </section>
+
+      <section id="failure" hidden>
+        <div class="panel error-panel">
+          <div class="error-title" id="failure-message">启动失败</div>
+          <div class="detail" id="failure-hint"></div>
+        </div>
+        <div class="panel" id="log-panel" hidden>
+          <div class="sub">服务日志（末尾）</div>
+          <pre id="failure-log"></pre>
+        </div>
+        <div class="actions">
+          <button class="primary" id="retry">重启服务</button>
+          <button id="open-log">打开服务日志</button>
+          <button id="open-config">打开配置目录</button>
+          <button id="quit">退出</button>
+        </div>
+      </section>
+
+      <footer id="footer">首次启动需要几秒钟：桌面端会定位本机 dsh、拉起 web 服务，再把界面加载进来。</footer>
+    </main>
+
+    <script>
+      (function () {
+        const api = window.dshDesktop;
+        const progress = document.getElementById('progress');
+        const failure = document.getElementById('failure');
+        const statusText = document.getElementById('status-text');
+        const statusDetail = document.getElementById('status-detail');
+        const failureMessage = document.getElementById('failure-message');
+        const failureHint = document.getElementById('failure-hint');
+        const failureLog = document.getElementById('failure-log');
+        const logPanel = document.getElementById('log-panel');
+        const footer = document.getElementById('footer');
+
+        function render(snapshot) {
+          if (!snapshot) return;
+          if (snapshot.fatal) {
+            progress.hidden = true;
+            failure.hidden = false;
+            failureMessage.textContent = snapshot.fatal.message || '启动失败';
+            failureHint.textContent = snapshot.fatal.hint || '';
+            failureHint.hidden = !snapshot.fatal.hint;
+            const log = snapshot.fatal.log || [];
+            logPanel.hidden = log.length === 0;
+            failureLog.textContent = log.join('\n');
+            footer.textContent = snapshot.paths && snapshot.paths.logFile ? '日志文件：' + snapshot.paths.logFile : '';
+            return;
+          }
+          progress.hidden = false;
+          failure.hidden = true;
+          statusText.textContent = snapshot.text || '处理中…';
+          statusDetail.textContent = snapshot.detail || '';
+          statusDetail.hidden = !snapshot.detail;
+        }
+
+        if (!api) {
+          render({ fatal: { message: '状态页缺少桌面端桥接。', hint: '请通过桌面端启动，而不是直接在浏览器里打开这个文件。' } });
+          return;
+        }
+
+        api.onState(render);
+        api.getState().then(render).catch(function () {});
+
+        document.getElementById('retry').addEventListener('click', function () {
+          progress.hidden = false;
+          failure.hidden = true;
+          statusText.textContent = '正在重启 dsh 服务…';
+          statusDetail.hidden = true;
+          api.retry().then(render).catch(function () {});
+        });
+        document.getElementById('open-log').addEventListener('click', function () { api.openLog(); });
+        document.getElementById('open-config').addEventListener('click', function () { api.openConfigDir(); });
+        document.getElementById('quit').addEventListener('click', function () { api.quit(); });
+      })();
+    </script>
+  </body>
+</html>
